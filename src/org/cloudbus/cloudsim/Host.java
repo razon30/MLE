@@ -232,7 +232,7 @@ public class Host {
 			return false;
 		}
 
-		SimulateSDFC.totalVM.add(vm.getId());
+		SimulateSDFC.placedVM.add(vm.getId());
 
 		setStorage(getStorage() - vm.getSize());
 		getVmList().add(vm);

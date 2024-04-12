@@ -1,4 +1,4 @@
-package MSDFC;
+package MLE;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -57,8 +57,10 @@ public class MainApplication {
 
     static int numOfCitizenFogs = 5;
     static int numOfEndDevPerGateway = 2;
-    static int numberOfMS = 10;
+    static int numberOfMS = 5;
     static double sensingInterval = 5;
+
+    public static double maxTupleNumber = 500;
 
     public static void main(String[] args) {
 
@@ -153,6 +155,7 @@ public class MainApplication {
             e.printStackTrace();
         }
 
+        masterFog.setUplinkLatency(150);
         fogDevices.add(cloudDevice);
         fogDevices.add(masterFog);
         deviceById.put(cloud.getId(), cloudDevice);
@@ -179,12 +182,13 @@ public class MainApplication {
         fogDevices.add(cf);
         deviceById.put(cf.getId(), cf);
         cf.setParentId(parentId);
-        cf.setUplinkLatency(4);
+        cf.setUplinkLatency(5);
 
 
+        double throughput = maxTupleNumber;//200;
         SDFCSensor sensor = new SDFCSensor(Constant.SENSOR + "-" + Constant.CITIZEN_FOG + "-" + gwPartialName,
                 Constant.SENSOR, userId, appId,
-                new DeterministicDistribution(sensingInterval)); // inter-transmission time of EEG sensor follows a
+                new DeterministicDistribution(1000 / (throughput / 9 * 10))); // inter-transmission time of EEG sensor follows a
         // deterministic distribution
         sensors.add(sensor);
         sensor.setGatewayDeviceId(cf.getId());
@@ -266,7 +270,7 @@ public class MainApplication {
         try {
             fogdevice = new GeneralPurposeFog(nodeName, characteristics,
                     new AppModuleAllocationPolicy(hostList), storageList,
-                    10, upBw, downBw, 0, ratePerMips);
+                    5, upBw, downBw, 0, ratePerMips);
         } catch (Exception e) {
             e.printStackTrace();
         }

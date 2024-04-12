@@ -2,7 +2,7 @@ package org.fog.entities;
 
 import java.util.ArrayList;
 
-import MSDFC.MainApplication;
+import MLE.MainApplication;
 import org.cloudbus.cloudsim.UtilizationModelFull;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.SimEntity;
@@ -10,6 +10,7 @@ import org.cloudbus.cloudsim.core.SimEvent;
 import org.fog.application.AppEdge;
 import org.fog.application.AppLoop;
 import org.fog.application.MyApplication;
+import org.fog.test.perfeval.TestApplication;
 import org.fog.utils.FogEvents;
 import org.fog.utils.FogUtils;
 import org.fog.utils.GeoLocation;
@@ -102,9 +103,9 @@ public class MySensor extends SimEntity {
         Tuple tuple = new Tuple(getAppId(), FogUtils.generateTupleId(), Tuple.UP, cpuLength, 1, nwLength, outputSize,
                 new UtilizationModelFull(), new UtilizationModelFull(), new UtilizationModelFull());
 
-        if (tuple.getCloudletId() > 1500) {
-            return;
-        }
+//        if (tuple.getCloudletId() > 500) {
+//            return;
+//        }
 
         System.out.println(tuple.getCloudletId());
         tuple.setUserId(getUserId());
@@ -139,9 +140,9 @@ public class MySensor extends SimEntity {
     @Override
     public void startEntity() {
         send(gatewayDeviceId, CloudSim.getMinTimeBetweenEvents(), FogEvents.SENSOR_JOINED, geoLocation);
-    //    for (int i = 0; i < MainApplication.numberOfTuplePerEvent; i++) {
-            send(getId(), getTransmitDistribution().getNextValue(), FogEvents.EMIT_TUPLE);
-    //    }
+        //    for (int i = 0; i < MainApplication.numberOfTuplePerEvent; i++) {
+        send(getId(), getTransmitDistribution().getNextValue(), FogEvents.EMIT_TUPLE);
+        //    }
     }
 
 //    @Override
@@ -167,18 +168,23 @@ public class MySensor extends SimEntity {
                 // transmit(transmitDistribution.getNextValue());
                 break;
             case FogEvents.EMIT_TUPLE:
-                MainApplication.tupleCounter += 1;
-                 transmit();
-//                for (int i = 0; i < MainApplication.numberOfTuplePerEvent; i++) {
-//                    //  processEvent(ev);
+                if (MainApplication.tupleReCounter < MainApplication.maxTupleNumber) {
+                    MainApplication.tupleCounter++;
+                    transmit();
+                    //     for (int i = 0; i < MainApplication.numberOfTuplePerEvent; i++) {
+                    //  processEvent(ev);
                     send(getId(), getTransmitDistribution().getNextValue(), FogEvents.EMIT_TUPLE);
-//                }
-                break;
-            case FogEvents.RE_EMIT_TUPLE:
-                MainApplication.tupleReCounter += 1;
-                transmit();
+                    //     }
+                    break;
+                }
+//}
 
-                break;
+//            case FogEvents.RE_EMIT_TUPLE:
+//                if (MainApplication.tupleCounter < 1500) {
+//                    MainApplication.tupleReCounter += 1;
+//                    transmit();
+//                }
+//                break;
         }
 
     }

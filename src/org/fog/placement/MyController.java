@@ -5,9 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import MSDFC.GeneralPurposeFog;
-import MSDFC.MainApplication;
-import SDFCNew.SDFCFogDevice;
 import SDFCNew.SimulateSDFC;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.SimEntity;
@@ -109,10 +106,19 @@ public class MyController extends SimEntity{
 			printPowerDetails();
 			printCostDetails();
 			printNetworkUsageDetails();
+			printFailedVM();
 			System.exit(0);
 			break;
 			
 		}
+	}
+
+	private void printFailedVM() {
+
+		float totalVM = SimulateSDFC.placedVM.size() + SimulateSDFC.totalVMFaile.size();
+		float failed = SimulateSDFC.totalVMFaile.size() / totalVM;
+
+		System.out.println("VM Failure rate = " + (failed * 100));
 	}
 
 	private void printResourceDetails() {
@@ -132,7 +138,7 @@ public class MyController extends SimEntity{
 			long abw = mainCitizenFog.getHost().getBwProvisioner().getAvailableBw();
 			long astorage = mainCitizenFog.getHost().getStorage();
 
-			if (mainCitizenFog.getName().contains("g")) {
+		//	if (mainCitizenFog.getName().contains("g")) {
 
 				System.out.println("Name: " + mainCitizenFog.getName());
 				System.out.println("Available MIPS: " + mainCitizenFog.getMips());
@@ -141,7 +147,7 @@ public class MyController extends SimEntity{
 				System.out.println("Available Storage: " + mainCitizenFog.getHost().getStorage());
 				System.out.println("------------------------------------------------");
 
-			}
+		//	}
 
 
 //			//if (aram>0){
@@ -227,6 +233,7 @@ public class MyController extends SimEntity{
 	private void printTimeDetails() {
 		System.out.println("=========================================");
 		System.out.println("============== RESULTS ==================");
+		System.out.println("Number of modules placed: "+TestApplication.placedNumberOfModule+" ==================");
 		//System.out.println("============== RESULTS "+MainApplication.tupleEventCounter+" ==================");
 		//System.out.println("============== RESULTS "+MainApplication.tupleCounter+" ==================");
 		System.out.println("=========================================");

@@ -1,9 +1,10 @@
-package MSDFC;
+package MLE;
 
 
 import java.util.ArrayList;
 
 import SDFC.utils.Utils;
+import com.sun.tools.javac.Main;
 import org.cloudbus.cloudsim.UtilizationModelFull;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.SimEntity;
@@ -108,12 +109,12 @@ public class SDFCSensor extends SimEntity {
         Tuple tuple = new Tuple(getAppId(), FogUtils.generateTupleId(), Tuple.UP, cpuLength, 1, nwLength, outputSize,
                 new UtilizationModelFull(), new UtilizationModelFull(), new UtilizationModelFull());
 
-        if (tuple.getCloudletId() > 1300) {
-            return;
-        }
+//        if (tuple.getCloudletId() > 1300) {
+//            return;
+//        }
 
 //        System.out.println("===========================");
-        System.out.println(tuple.getCloudletId());
+    //    System.out.println(tuple.getCloudletId());
 //        System.out.println(getUserId());
 //        System.out.println(getTupleType());
 //        System.out.println(_edge.getDestination());
@@ -174,13 +175,15 @@ public class SDFCSensor extends SimEntity {
                 // transmit(transmitDistribution.getNextValue());
                 break;
             case FogEvents.EMIT_TUPLE:
-                MainApplication.tupleCounter += 1;
-                transmit();
-           //     for (int i = 0; i < MainApplication.numberOfTuplePerEvent; i++) {
-                  //  processEvent(ev);
-                    send(getId(), getTransmitDistribution().getNextValue(), FogEvents.EMIT_TUPLE);
-           //     }
-                break;
+               if (MainApplication.tupleReCounter < MainApplication.maxTupleNumber) {
+                   MainApplication.tupleCounter++;
+                   transmit();
+                   //     for (int i = 0; i < MainApplication.numberOfTuplePerEvent; i++) {
+                   //  processEvent(ev);
+                   send(getId(), getTransmitDistribution().getNextValue(), FogEvents.EMIT_TUPLE);
+                   //     }
+                   break;
+               }
             case FogEvents.RE_EMIT_TUPLE:
                 MainApplication.tupleReCounter += 1;
                 transmit();

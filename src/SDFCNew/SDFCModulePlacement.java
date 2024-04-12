@@ -5,8 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import MSDFC.GeneralPurposeFog;
-import MSDFC.MicroserviceContainer;
+
 import org.fog.application.AppModule;
 
 public class SDFCModulePlacement extends SDFCPlacement {

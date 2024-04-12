@@ -2,7 +2,8 @@ package SDFCNew;
 
 import java.util.*;
 
-import MSDFC.GeneralPurposeFog;
+
+import MLE.MainApplication;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.Pe;
@@ -36,10 +37,10 @@ public class SimulateSDFC {
 	static int numOfAreas = 1;
 	static int numOfCamerasPerArea = 4;
 
-	public static Set<Integer> totalVM = new HashSet<>();
+	public static Set<Integer> placedVM = new HashSet<>();
 	public static Set<Integer> totalVMFaile = new HashSet<>();
 
-	private static boolean CLOUD = false;
+	private static boolean CLOUD = true;
 
 	public static void main(String[] args) {
 
@@ -63,12 +64,20 @@ public class SimulateSDFC {
 			// createSDFCFogDevices(broker.getId(), appId);
 
 			SDFCModuleMapping moduleMapping = SDFCModuleMapping.createModuleMapping(); // initializing a module mapping
-			for (int i = 0; i < Constant.NumberOfCF; i++) {
-				createCFDevices(broker.getId(), appId, i, application, moduleMapping, Constant.CITIZEN_FOG,
-						Constant.CITIZEN_MODULE);
-			}
-			createCFDevices(broker.getId(), appId, 0, application, moduleMapping, Constant.MASTER_FOG,
+			SDFCFogDevice MF = createCFDevices(broker.getId(), appId, 0, application, moduleMapping,
+					Constant.MASTER_FOG,
 					Constant.MASTER_MODULE);
+			MF.setLevel(0);
+			MF.setParentId(-1);
+			for (int i = 0; i < Constant.NumberOfCF; i++) {
+				SDFCFogDevice CF = createCFDevices(broker.getId(), appId, i, application, moduleMapping,
+						Constant.CITIZEN_FOG,
+						Constant.CITIZEN_MODULE);
+				CF.setParentId(MF.getId());
+				CF.setUplinkLatency(5);
+				MF.setLevel(1);
+			}
+
 
 			completeApplicationsettings(application);
 
@@ -101,7 +110,7 @@ public class SimulateSDFC {
 	 * @param CFId
 	 */
 
-	private static void createCFDevices(int userId, String appId, int cfId, SDFCApplication application,
+	public static SDFCFogDevice createCFDevices(int userId, String appId, int cfId, SDFCApplication application,
 			SDFCModuleMapping moduleMapping, String fogName, String moduleName) {
 
 		long mips = Utils.getValue(1024 * 3, 1024 * 5);
@@ -135,14 +144,15 @@ public class SimulateSDFC {
 		}
 
 		// printCFInfo(CF, moduleName);
-
+		return CF;
 	}
 
 	private static void setSensorActuator(SDFCFogDevice cF, String id, int userId, String appId) {
 
 		SDFCSensor sensor = new SDFCSensor(Constant.SENSOR + id, Constant.SENSOR, userId, appId,
-				new DeterministicDistribution(5));
+				new DeterministicDistribution(1000 / (MainApplication.maxTupleNumber / 9 * 10)));
 		sensor.setGatewayDeviceId(cF.getId());
+		sensor.setLatency(5.0);
 		sensors.add(sensor);
 
 		SDFCActuator actuator = new SDFCActuator(Constant.ACTUATOR + id, userId, appId, Constant.ACTUATOR);

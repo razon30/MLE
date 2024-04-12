@@ -633,27 +633,70 @@ public class SDFCFogDevice extends PowerDatacenter {
 //				System.out.println(appToModulesMap.size());
 //				System.out.println(tuple.getAppId());
 
-				// if
-				// (appToModulesMap.get(tuple.getAppId()).contains(tuple.getDestModuleName())) {
+				// if(appToModulesMap.get(tuple.getAppId()).contains(tuple.getDestModuleName())) {
 //				String moduleName = "";
-				int vmId = -1;
-				for (Vm vm : getHost().getVmList()) {
-					if (((AppModule) vm).getName().equals(tuple.getDestModuleName())) {
-						vmId = vm.getId();
-						// moduleName = ((AppModule) vm).getName();
-					}
-				}
-				if (vmId < 0 || (tuple.getModuleCopyMap().containsKey(tuple.getDestModuleName())
-						&& tuple.getModuleCopyMap().get(tuple.getDestModuleName()) != vmId)) {
-					return;
-				}
-				tuple.setVmId(vmId);
+//				int vmId = -1;
+//				for (Vm vm : getHost().getVmList()) {
+//					if (((AppModule) vm).getName().equals(tuple.getDestModuleName())) {
+//						vmId = vm.getId();
+//						// moduleName = ((AppModule) vm).getName();
+//					}
+//				}
+//				if (vmId < 0 || (tuple.getModuleCopyMap().containsKey(tuple.getDestModuleName())
+//						&& tuple.getModuleCopyMap().get(tuple.getDestModuleName()) != vmId)) {
+//					return;
+//				}
+//				tuple.setVmId(vmId);
 //				Logger.error(getName(), "Executing tuple for operator " + moduleName);
 
 				// updateTimingsOnReceipt(tuple);
 
-				sendTupleToActuator(tuple);
-				executeTuple(ev, tuple.getDestModuleName());
+			//	sendTupleToActuator(tuple);
+				//executeTuple(ev, tuple.getDestModuleName());
+
+
+				if (appToModulesMap.containsKey(tuple.getAppId())) {
+					if (appToModulesMap.get(tuple.getAppId()).contains(tuple.getDestModuleName())) {
+						int vmId = -1;
+						for (Vm vm : getHost().getVmList()) {
+							if (((AppModule) vm).getName().equals(tuple.getDestModuleName()))
+								vmId = vm.getId();
+						}
+						if (vmId < 0 || (tuple.getModuleCopyMap().containsKey(tuple.getDestModuleName())
+								&& tuple.getModuleCopyMap().get(tuple.getDestModuleName()) != vmId)) {
+							return;
+						}
+						tuple.setVmId(vmId);
+						// Logger.error(getName(), "Executing tuple for operator " + moduleName);
+
+						updateTimingsOnReceipt(tuple);
+
+						executeTuple(ev, tuple.getDestModuleName());
+					} else if (tuple.getDestModuleName() != null) {
+						if (tuple.getDirection() == Tuple.UP)
+							sendUp(tuple);
+						else if (tuple.getDirection() == Tuple.DOWN) {
+							for (int childId : getChildrenIds())
+								sendDown(tuple, childId);
+						}
+					} else {
+						sendUp(tuple);
+					}
+				} else {
+					if (tuple.getDirection() == Tuple.UP)
+						sendUp(tuple);
+					else if (tuple.getDirection() == Tuple.DOWN) {
+						for (int childId : getChildrenIds())
+							sendDown(tuple, childId);
+					}
+				}
+
+
+
+
+
+
+
 
 //				} else {
 //					tuple.setDestModuleName(Constant.MASTER_MODULE);
@@ -678,11 +721,11 @@ public class SDFCFogDevice extends PowerDatacenter {
 //			return;
 //		}
 //
-//		if (tuple.getDirection() == Tuple.ACTUATOR) {
-//			sendTupleToActuator(tuple);
-//			return;
-//		}
-//
+		if (tuple.getDirection() == Tuple.ACTUATOR) {
+			sendTupleToActuator(tuple);
+			return;
+		}
+
 //		if (getHost().getVmList().size() > 0) {
 //			final AppModule operator = (AppModule) getHost().getVmList().get(0);
 //			if (CloudSim.clock() > 0) {
@@ -695,11 +738,11 @@ public class SDFCFogDevice extends PowerDatacenter {
 //				});
 //			}
 //		}
-//
+
 //		if (getName().equals(Constant.MASTER_FOG + "0") && tuple.getDestModuleName() == null) {
 //			sendNow(getControllerId(), FogEvents.TUPLE_FINISHED, null);
 //		}
-//
+
 //		if (appToModulesMap.containsKey(tuple.getAppId())) {
 //			if (appToModulesMap.get(tuple.getAppId()).contains(tuple.getDestModuleName())) {
 //				int vmId = -1;
@@ -897,6 +940,8 @@ public class SDFCFogDevice extends PowerDatacenter {
 		Tuple tuple = (Tuple) ev.getData();
 
 		AppModule module = getModuleByName(moduleName);
+
+		if (module == null) return;
 
 		if (tuple.getDirection() == Tuple.UP) {
 			String srcModule = tuple.getSrcModuleName();

@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import MSDFC.GeneralPurposeFog;
-import MSDFC.MainApplication;
+
+import MLE.MainApplication;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.SimEntity;
 import org.cloudbus.cloudsim.core.SimEvent;
@@ -169,7 +169,7 @@ public class SDFCController extends SimEntity {
 
 	private void printFailedVM() {
 
-		float totalVM = SimulateSDFC.totalVM.size() + SimulateSDFC.totalVMFaile.size();
+		float totalVM = SimulateSDFC.placedVM.size() + SimulateSDFC.totalVMFaile.size();
 		float failed = SimulateSDFC.totalVMFaile.size() / totalVM;
 
 		System.out.println("VM Failure rate = " + (failed * 100));
@@ -214,7 +214,7 @@ public class SDFCController extends SimEntity {
 
 	private void printTimeDetails() {
 		System.out.println("=========================================");
-		System.out.println("============== RESULTS "+MainApplication.tupleCounter+"==================");
+		System.out.println("============== RESULTS "+ MainApplication.tupleCounter+"==================");
 		System.out.println("=========================================");
 		System.out.println("EXECUTION TIME : "
 				+ (Calendar.getInstance().getTimeInMillis() - TimeKeeper.getInstance().getSimulationStartTime()));

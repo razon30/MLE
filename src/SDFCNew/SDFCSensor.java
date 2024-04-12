@@ -2,7 +2,7 @@ package SDFCNew;
 
 import java.util.ArrayList;
 
-import MSDFC.MainApplication;
+import MLE.MainApplication;
 import org.cloudbus.cloudsim.UtilizationModelFull;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.SimEntity;
@@ -116,9 +116,9 @@ public class SDFCSensor extends SimEntity {
 
 		Tuple tuple = new Tuple(getAppId(), FogUtils.generateTupleId(), Tuple.UP, cpuLength, 1, nwLength, outputSize,
 				new UtilizationModelFull(), new UtilizationModelFull(), new UtilizationModelFull());
-		if (tuple.getCloudletId() > 1500) {
-			return;
-		}
+//		if (tuple.getCloudletId() > 500) {
+//			return;
+//		}
 		// System.out.println(tuple.getCloudletId());
 		tuple.setUserId(getUserId());
 		tuple.setTupleType(getTupleType());
@@ -165,10 +165,15 @@ public class SDFCSensor extends SimEntity {
 			// transmit(transmitDistribution.getNextValue());
 			break;
 		case FogEvents.EMIT_TUPLE:
-			MainApplication.tupleCounter += 1;
-			transmit();
-			send(getId(), getTransmitDistribution().getNextValue(), FogEvents.EMIT_TUPLE);
-			break;
+			if (MainApplication.tupleReCounter < MainApplication.maxTupleNumber) {
+				MainApplication.tupleCounter++;
+				transmit();
+				//     for (int i = 0; i < MainApplication.numberOfTuplePerEvent; i++) {
+				//  processEvent(ev);
+				send(getId(), getTransmitDistribution().getNextValue(), FogEvents.EMIT_TUPLE);
+				//     }
+				break;
+			}
 		}
 
 	}

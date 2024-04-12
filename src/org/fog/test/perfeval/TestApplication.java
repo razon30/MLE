@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import MLE.MainApplication;
 import SDFC.utils.Utils;
 import SDFCNew.SDFCFogDevice;
 import org.cloudbus.cloudsim.Host;
@@ -53,9 +54,13 @@ public class TestApplication {
 
 	static boolean CLOUD = false;
 
-	static int numOfGateways = 2;
+	static int numOfGateways = 1; //2
 	static int numOfEndDevPerGateway = 5;
 	static double sensingInterval = 5;
+	public static double placedNumberOfModule = 0;
+	public static double tupleCounter = 0;
+
+	public static MyFogDevice cloud;
 
 	public static void main(String[] args) {
 
@@ -80,8 +85,15 @@ public class TestApplication {
 			moduleMapping.addModuleToDevice("storageModule", "cloud");
 			for (int i = 0; i < idOfEndDevices.size(); i++) {
 				MyFogDevice fogDevice = deviceById.get(idOfEndDevices.get(i));
-				moduleMapping.addModuleToDevice("clientModule", fogDevice.getName());
+			//	for (int j = 0; j < 10; j++) {
+					moduleMapping.addModuleToDevice("clientModule", fogDevice.getName());
+			//	}
 			}
+
+//			AppModule appModule = application.getModuleByName("storageModule");
+//			List<AppModule> placedModules = new ArrayList<AppModule>();
+//			placedModules.add(appModule);
+//			deviceToModuleMap.put(cloud.getId(), placedModules);
 
 			MyController controller = new MyController("master-controller", fogDevices, sensors, actuators);
 
@@ -114,7 +126,7 @@ public class TestApplication {
 	}
 
 	private static void createFogDevices(int userId, String appId) {
-		MyFogDevice cloud = createFogDevice("cloud", 44800, 40000, 100, 10000, 0, 0.01, 16 * 103, 16 * 83.25);
+		cloud = createFogDevice("cloud", 44800, 40000, 100, 10000, 0, 0.01, 16 * 103, 16 * 83.25);
 		cloud.setParentId(-1);
 		fogDevices.add(cloud);
 		deviceById.put(cloud.getId(), cloud);
@@ -131,11 +143,11 @@ public class TestApplication {
 		deviceById.put(gw.getId(), gw);
 		CFbyIDHealthStatusTable.put(gw.getId(), gw);
 		gw.setParentId(parentId);
-		gw.setUplinkLatency(4);
+		gw.setUplinkLatency(150);
 		for (int i = 0; i < numOfEndDevPerGateway; i++) {
 			String endPartialName = gwPartialName + "-" + i;
 			MyFogDevice end = addEnd(endPartialName, userId, appId, gw.getId());
-			end.setUplinkLatency(2);
+			end.setUplinkLatency(5);
 			fogDevices.add(end);
 			deviceById.put(end.getId(), end);
 			CFbyIDHealthStatusTable.put(end.getId(), end);
@@ -149,7 +161,9 @@ public class TestApplication {
 		idOfEndDevices.add(end.getId());
 
 		MySensor sensor = new MySensor("s-" + endPartialName, "IoTSensor", userId, appId,
-				new DeterministicDistribution(sensingInterval)); // inter-transmission time of EEG sensor follows a
+				new DeterministicDistribution(1000 / (MainApplication.maxTupleNumber / 9 * 10))); // inter-transmission time of EEG
+		// sensor
+		// follows a
 																	// deterministic distribution
 		sensors.add(sensor);
 		sensor.setGatewayDeviceId(end.getId());
@@ -210,20 +224,9 @@ public class TestApplication {
 		int bw = Utils.getValue(128, 128 * 3);
 
 		MyApplication application = MyApplication.createApplication(appId, userId);
-		application.addAppModule("clientModule", 10, 1000, 1000, 100);
+
 		application.addAppModule("mainModule", 50, 1500, 4000, 800);
 		application.addAppModule("storageModule", 10, 50, 12000, 100);
-
-		application.addAppEdge("IoTSensor", "clientModule", 100, 200, "IoTSensor", Tuple.UP, AppEdge.SENSOR);
-		application.addAppEdge("clientModule", "mainModule", 6000, 600, "RawData", Tuple.UP, AppEdge.MODULE);
-		application.addAppEdge("mainModule", "storageModule", 1000, 300, "StoreData", Tuple.UP, AppEdge.MODULE);
-		application.addAppEdge("mainModule", "clientModule", 100, 50, "ResultData", Tuple.DOWN, AppEdge.MODULE);
-		application.addAppEdge("clientModule", "IoTActuator", 100, 50, "Response", Tuple.DOWN, AppEdge.ACTUATOR);
-
-		application.addTupleMapping("clientModule", "IoTSensor", "RawData", new FractionalSelectivity(1.0));
-		application.addTupleMapping("mainModule", "RawData", "ResultData", new FractionalSelectivity(1.0));
-		application.addTupleMapping("mainModule", "RawData", "StoreData", new FractionalSelectivity(1.0));
-		application.addTupleMapping("clientModule", "ResultData", "Response", new FractionalSelectivity(1.0));
 
 		for (int id : idOfEndDevices) {
 			Map<String, Double> moduleDeadline = new HashMap<String, Double>();
@@ -235,21 +238,41 @@ public class TestApplication {
 
 		}
 
-		final AppLoop loop1 = new AppLoop(new ArrayList<String>() {
-			{
-				add("IoTSensor");
-				add("clientModule");
-				add("mainModule");
-				add("clientModule");
-				add("IoTActuator");
-			}
-		});
-		List<AppLoop> loops = new ArrayList<AppLoop>() {
-			{
-				add(loop1);
-			}
-		};
-		application.setLoops(loops);
+		List<AppLoop> loops = new ArrayList<>();
+//
+//		for (int i = 0; i < 10; i++) {
+
+
+			application.addAppModule("clientModule", 10, 1000, 1000, 100);
+
+			application.addAppEdge("IoTSensor", "clientModule", 100, 200, "IoTSensor", Tuple.UP, AppEdge.SENSOR);
+			application.addAppEdge("clientModule", "mainModule", 6000, 600, "RawData", Tuple.UP, AppEdge.MODULE);
+			application.addAppEdge("mainModule", "storageModule", 1000, 300, "StoreData", Tuple.UP, AppEdge.MODULE);
+			application.addAppEdge("mainModule", "clientModule", 100, 50, "ResultData", Tuple.DOWN, AppEdge.MODULE);
+			application.addAppEdge("clientModule", "IoTActuator", 100, 50, "Response", Tuple.DOWN, AppEdge.ACTUATOR);
+
+			application.addTupleMapping("clientModule", "IoTSensor", "RawData", new FractionalSelectivity(1.0));
+			application.addTupleMapping("mainModule", "RawData", "ResultData", new FractionalSelectivity(1.0));
+			application.addTupleMapping("mainModule", "RawData", "StoreData", new FractionalSelectivity(1.0));
+			application.addTupleMapping("clientModule", "ResultData", "Response", new FractionalSelectivity(1.0));
+
+
+		//	int finalI = i;
+			AppLoop loop1 = new AppLoop(new ArrayList<String>() {
+				{
+					add("IoTSensor");
+					add("clientModule");
+					add("mainModule");
+					add("clientModule");
+					add("IoTActuator");
+				}
+			});
+			loops.add(loop1);
+			application.setLoops(loops);
+
+	//	}
+
+
 		application.setDeadlineInfo(deadlineInfo);
 		application.setAdditionalMipsInfo(additionalMipsInfo);
 

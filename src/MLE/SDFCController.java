@@ -1,4 +1,4 @@
-package MSDFC;
+package MLE;
 
 
 import java.util.Calendar;
@@ -6,9 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import SDFCNew.SDFCFogDevice;
 import SDFCNew.SimulateSDFC;
-import com.sun.tools.javac.Main;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.SimEntity;
 import org.cloudbus.cloudsim.core.SimEvent;
@@ -113,72 +111,78 @@ public class SDFCController extends SimEntity {
         }
     }
 
-//    private void printResourceDetails() {
-//        System.out.println("=========================================");
-//        System.out.println("Original vs Available resource");
-//        System.out.println("=========================================");
-//
-//        int ram = 0;
-//        int mips = 0;
-//        long bw = 0;
-//        long storage = 0;
-//
-//        for (GeneralPurposeFog mainCitizenFog: MainApplication.masterFog.CFbyIDHealthStatusTable.values()){
-//
-//            int aram = mainCitizenFog.getHost().getRamProvisioner().getAvailableRam();
-//            int amips = mainCitizenFog.getHost().getPeList().get(0).getMips() * mainCitizenFog.getHost().getPeList().size();
-//            long abw = mainCitizenFog.getHost().getBwProvisioner().getAvailableBw();
-//            long astorage = mainCitizenFog.getHost().getStorage();
-//
-//            if (aram>0){
-//                ram += aram;
-//            }
-//
-//            if (amips>0){
-//                mips += amips;
-//            }
-//
-//            if (abw>0){
-//                bw += abw;
-//            }
-//
-//            if (astorage>0){
-//                storage += astorage;
-//            }
-//
-//
-//        }
-//
-//        //System.out.println("CF Name: "+mainCitizenFog.getName());
+    private void printResourceDetails() {
+        System.out.println("=========================================");
+        System.out.println("Original vs Available resource");
+        System.out.println("=========================================");
+
+        int ram = 0;
+        int mips = 0;
+        long bw = 0;
+        long storage = 0;
+
+        for (GeneralPurposeFog mainCitizenFog: MainApplication.masterFog.CFbyIDHealthStatusTable.values()){
+
+            int aram = mainCitizenFog.getHost().getRamProvisioner().getAvailableRam();
+            int amips = mainCitizenFog.getHost().getPeList().get(0).getMips() * mainCitizenFog.getHost().getPeList().size();
+            long abw = mainCitizenFog.getHost().getBwProvisioner().getAvailableBw();
+            long astorage = mainCitizenFog.getHost().getStorage();
+
+            if (aram>0){
+                ram += aram;
+            }
+
+            if (amips>0){
+                mips += amips;
+            }
+
+            if (abw>0){
+                bw += abw;
+            }
+
+            if (astorage>0){
+                storage += astorage;
+            }
+
+            System.out.println("CF Name: "+mainCitizenFog.getName());
+            System.out.println("Available MIPS: "+amips);
+            System.out.println("Available RAM: "+aram);
+            System.out.println("Available BW: "+abw);
+            System.out.println("Available Storage: "+astorage);
+            System.out.println("-------------------------------------------------------------");
+
+        }
+
+//        System.out.println("CF Name: "+mainCitizenFog.getName());
 //        System.out.println("Available MIPS: "+mips);
 //        System.out.println("Available RAM: "+ram);
 //        System.out.println("Available BW: "+bw);
 //        System.out.println("Available Storage: "+storage);
 //        System.out.println("-------------------------------------------------------------");
+
+   }
+
+//    private void printResourceDetails() {
+//        System.out.println("=========================================");
+//        System.out.println("Original vs Available resource");
+//        System.out.println("=========================================");
+//        for (GeneralPurposeFog mainCitizenFog: MainApplication.masterFog.getCFbyID().values()){
 //
+//            GeneralPurposeFog availableCF = MainApplication.masterFog.CFbyIDHealthStatusTable.get(mainCitizenFog.getId());
+//
+//            System.out.println("CF Name: "+mainCitizenFog.getName());
+//            System.out.println("Total MIPS: "+mainCitizenFog.getMips()+"  Available MIPS: "+availableCF.getMips());
+//            System.out.println("Total RAM: "+mainCitizenFog.getHost().getRamProvisioner().getAvailableRam()+"  Available RAM: "+availableCF.getHost().getRamProvisioner().getAvailableRam());
+//            System.out.println("Total BW: "+mainCitizenFog.getHost().getBwProvisioner().getAvailableBw()+"  Available BW: "+availableCF.getHost().getBwProvisioner().getAvailableBw());
+//            System.out.println("Total Storage: "+mainCitizenFog.getHost().getStorage()+"  Available Storage: "+availableCF.getHost().getStorage());
+//            System.out.println("-------------------------------------------------------------");
+//
+//        }
 //    }
-
-    private void printResourceDetails() {
-        System.out.println("=========================================");
-        System.out.println("Original vs Available resource");
-        System.out.println("=========================================");
-        for (GeneralPurposeFog mainCitizenFog: MainApplication.masterFog.getCFbyID().values()){
-
-            GeneralPurposeFog availableCF = MainApplication.masterFog.CFbyIDHealthStatusTable.get(mainCitizenFog.getId());
-
-            System.out.println("CF Name: "+mainCitizenFog.getName());
-            System.out.println("Total MIPS: "+mainCitizenFog.getMips()+"  Available MIPS: "+availableCF.getMips());
-            System.out.println("Total RAM: "+mainCitizenFog.getHost().getRamProvisioner().getAvailableRam()+"  Available RAM: "+availableCF.getHost().getRamProvisioner().getAvailableRam());
-            System.out.println("Total BW: "+mainCitizenFog.getHost().getBwProvisioner().getAvailableBw()+"  Available BW: "+availableCF.getHost().getBwProvisioner().getAvailableBw());
-            System.out.println("Total Storage: "+mainCitizenFog.getHost().getStorage()+"  Available Storage: "+availableCF.getHost().getStorage());
-            System.out.println("-------------------------------------------------------------");
-
-        }
-    }
 
     private void printFailedVM() {
 
-        float totalVM = SimulateSDFC.totalVM.size() + SimulateSDFC.totalVMFaile.size();
+        float totalVM = SimulateSDFC.placedVM.size() + SimulateSDFC.totalVMFaile.size();
         float failed = SimulateSDFC.totalVMFaile.size() / totalVM;
 
         System.out.println("VM Failure rate = " + (failed * 100));
